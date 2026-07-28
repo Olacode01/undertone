@@ -2,6 +2,9 @@
 __pycache__/
 *.pyc
 
+# macOS
+.DS_Store
+
 # Local unit ledger — state, not code
 .youcam_units.json
 
