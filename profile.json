@@ -1,0 +1,82 @@
+{
+  "undertone": "warm",
+  "undertone_score": 0.812,
+  "hue_angle": 60.7,
+  "value": "deep",
+  "skin_lightness": 32.9,
+  "contrast": "low",
+  "contrast_delta": 4.5,
+  "contrast_source": "eyebrow",
+  "chroma": "soft",
+  "season": "autumn",
+  "confidence": 0.65,
+  "warnings": [
+    "hair_color #FAF0BE is very light and desaturated (L* 94, C* 26) — likely the photo background rather than hair. Using eyebrow colour for the contrast reading instead."
+  ],
+  "palette": "Autumn",
+  "summary": "Warm and deep, with richness. Colours with earth in them rather than brightness.",
+  "why": "Your skin reads warm (hue angle 61°) at deep depth (L* 33), with low contrast between skin and eyebrow (ΔL* 4) and soft natural colouring. That places you in Autumn.",
+  "wear": [
+    {
+      "hex": "#B7410E",
+      "name": "Rust"
+    },
+    {
+      "hex": "#8B6914",
+      "name": "Olive gold"
+    },
+    {
+      "hex": "#556B2F",
+      "name": "Moss"
+    },
+    {
+      "hex": "#A0522D",
+      "name": "Sienna"
+    },
+    {
+      "hex": "#C67B5C",
+      "name": "Clay"
+    },
+    {
+      "hex": "#7B3F00",
+      "name": "Chocolate"
+    },
+    {
+      "hex": "#DAA520",
+      "name": "Goldenrod"
+    },
+    {
+      "hex": "#6B4423",
+      "name": "Umber"
+    }
+  ],
+  "avoid": [
+    {
+      "hex": "#FF69B4",
+      "name": "Icy pink"
+    },
+    {
+      "hex": "#E0FFFF",
+      "name": "Pastel blue"
+    },
+    {
+      "hex": "#2C2C2C",
+      "name": "Pure black"
+    }
+  ],
+  "neutrals": [
+    {
+      "hex": "#EFE6D5",
+      "name": "Cream"
+    },
+    {
+      "hex": "#8B7355",
+      "name": "Coffee"
+    },
+    {
+      "hex": "#3E3428",
+      "name": "Deep bark"
+    }
+  ],
+  "metals": "Antique gold, bronze, copper"
+}

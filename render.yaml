@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: undertone
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    # Render injects $PORT. Binding to 127.0.0.1 or a fixed port makes the
+    # service unreachable and the deploy will hang on health checks.
+    startCommand: uvicorn server:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: YOUCAM_API_KEY
+        sync: false          # set in the Render dashboard, never in the repo
+      - key: UNDERTONE_MAX_UNITS
+        value: "60"          # guard against a runaway public demo
+      - key: PYTHON_VERSION
+        value: "3.12"

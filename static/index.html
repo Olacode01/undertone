@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Undertone — colour analysis that knows what to wear</title>
+<style>
+  :root {
+    --ink: #1a1714;
+    --muted: #6f665e;
+    --line: #e5ded6;
+    --bg: #faf7f3;
+    --card: #fff;
+    --good: #2e7d52;
+    --warn: #b45309;
+    --bad: #b3261e;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font: 16px/1.55 ui-sans-serif, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 40px 24px 80px; }
+  header { margin-bottom: 36px; }
+  h1 { font-size: 30px; margin: 0 0 6px; letter-spacing: -0.02em; }
+  .sub { color: var(--muted); margin: 0; }
+  .card {
+    background: var(--card); border: 1px solid var(--line);
+    border-radius: 14px; padding: 24px; margin-bottom: 22px;
+  }
+  h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .09em;
+       color: var(--muted); margin: 0 0 16px; font-weight: 600; }
+  .row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+  button {
+    background: var(--ink); color: #fff; border: 0; border-radius: 9px;
+    padding: 11px 20px; font-size: 15px; cursor: pointer; font-weight: 500;
+  }
+  button:disabled { opacity: .45; cursor: not-allowed; }
+  button.ghost { background: transparent; color: var(--ink); border: 1px solid var(--line); }
+  input[type=file] { font-size: 14px; }
+
+  .season { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+  .season strong { font-size: 30px; letter-spacing: -0.02em; }
+  .conf { font-size: 13px; color: var(--muted); }
+  .why { color: var(--muted); margin: 14px 0 0; font-size: 15px; }
+  .warn-box {
+    background: #fff7ed; border: 1px solid #fed7aa; color: #7c2d12;
+    border-radius: 9px; padding: 12px 14px; margin-top: 14px; font-size: 14px;
+  }
+
+  .axes { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+          gap: 14px; margin-top: 20px; }
+  .axis { border: 1px solid var(--line); border-radius: 9px; padding: 11px 13px; }
+  .axis span { display: block; font-size: 11px; text-transform: uppercase;
+               letter-spacing: .07em; color: var(--muted); }
+  .axis b { font-size: 17px; font-weight: 600; }
+  .axis em { font-style: normal; color: var(--muted); font-size: 12px; }
+
+  .swatches { display: flex; gap: 9px; flex-wrap: wrap; margin-top: 6px; }
+  .sw { text-align: center; width: 78px; }
+  .chip { height: 54px; border-radius: 8px; border: 1px solid rgba(0,0,0,.1); }
+  .sw small { display: block; font-size: 11px; color: var(--muted);
+              margin-top: 5px; line-height: 1.3; }
+  .grouplabel { font-size: 13px; font-weight: 600; margin: 18px 0 4px; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th { text-align: left; font-size: 11px; text-transform: uppercase;
+       letter-spacing: .07em; color: var(--muted); padding: 0 8px 10px;
+       font-weight: 600; }
+  td { padding: 11px 8px; border-top: 1px solid var(--line); vertical-align: middle; }
+  .gchip { width: 26px; height: 26px; border-radius: 6px;
+           border: 1px solid rgba(0,0,0,.12); display: inline-block; }
+  .verdict { font-weight: 600; font-size: 13px; }
+  .v-excellent, .v-good { color: var(--good); }
+  .v-workable { color: var(--warn); }
+  .v-clashes, .v-poor { color: var(--bad); }
+  .reason { color: var(--muted); font-size: 13px; }
+  .score { font-variant-numeric: tabular-nums; font-weight: 600; }
+  .empty { color: var(--muted); }
+  .err { color: var(--bad); }
+  .badge { font-size: 12px; color: var(--muted); border: 1px solid var(--line);
+           border-radius: 999px; padding: 3px 10px; }
+  .result img { max-width: 100%; border-radius: 10px; margin-top: 12px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Undertone</h1>
+    <p class="sub">Your face decides your palette. Your palette decides what's worth trying on.</p>
+  </header>
+
+  <div class="card">
+    <h2>1 · Analyse</h2>
+    <div class="row">
+      <input type="file" id="selfie" accept="image/jpeg,image/png">
+      <button id="go">Analyse my colouring</button>
+      <span id="status" class="badge">checking…</span>
+    </div>
+    <p class="sub" style="margin-top:12px;font-size:14px">
+      Forward-facing, even lighting, face filling most of the frame, no glasses. jpg or png.
+    </p>
+    <div id="error" class="err" style="margin-top:12px"></div>
+  </div>
+
+  <div id="profile" style="display:none">
+    <div class="card">
+      <h2>2 · Your colouring</h2>
+      <div class="season">
+        <strong id="season"></strong>
+        <span class="conf" id="confidence"></span>
+        <span class="badge" id="source"></span>
+      </div>
+      <p class="why" id="why"></p>
+      <div id="warnings"></div>
+      <div class="axes" id="axes"></div>
+    </div>
+
+    <div class="card">
+      <h2>3 · Your palette</h2>
+      <div class="grouplabel">Wear</div>
+      <div class="swatches" id="wear"></div>
+      <div class="grouplabel">Neutrals</div>
+      <div class="swatches" id="neutrals"></div>
+      <div class="grouplabel">Avoid</div>
+      <div class="swatches" id="avoid"></div>
+      <p class="why" id="metals"></p>
+    </div>
+
+    <div class="card">
+      <h2>4 · Ranked for you</h2>
+      <table>
+        <thead><tr>
+          <th></th><th>Garment</th><th>Score</th><th>Verdict</th><th>Why</th><th></th>
+        </tr></thead>
+        <tbody id="garments"></tbody>
+      </table>
+      <div id="tryon" class="result"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+let bodyPhoto = null;
+
+function swatches(target, colours) {
+  $(target).innerHTML = colours.map(c => `
+    <div class="sw">
+      <div class="chip" style="background:${c.hex}"></div>
+      <small>${c.name}</small>
+    </div>`).join("");
+}
+
+function axis(label, value, note) {
+  return `<div class="axis"><span>${label}</span><b>${value}</b>
+          ${note ? `<em>${note}</em>` : ""}</div>`;
+}
+
+function renderProfile(p) {
+  $("season").textContent = p.palette;
+  $("confidence").textContent = `confidence ${p.confidence}`;
+  $("why").textContent = p.why;
+
+  $("warnings").innerHTML = (p.warnings || [])
+    .map(w => `<div class="warn-box">${w}</div>`).join("");
+
+  $("axes").innerHTML = [
+    // Print the server's own rounded values. Math.round() and Python's %.0f
+    // disagree on .5, which shows up as the prose and the cards contradicting
+    // each other by one.
+    axis("Undertone", p.undertone, `hue ${p.hue_angle}°`),
+    axis("Depth", p.value, `L* ${p.skin_lightness}`),
+    axis("Contrast", p.contrast, `ΔL* ${p.contrast_delta} via ${p.contrast_source}`),
+    axis("Chroma", p.chroma, ""),
+  ].join("");
+
+  swatches("wear", p.wear);
+  swatches("neutrals", p.neutrals);
+  swatches("avoid", p.avoid);
+  $("metals").textContent = `Metals: ${p.metals}`;
+}
+
+function renderGarments(list) {
+  if (!list.length) {
+    $("garments").innerHTML =
+      `<tr><td colspan="6" class="empty">No catalogue found. Run python catalogue.py</td></tr>`;
+    return;
+  }
+  $("garments").innerHTML = list.map(g => `
+    <tr>
+      <td><span class="gchip" style="background:${g.colour}"></span></td>
+      <td><b>${g.name}</b><br><span class="reason">${g.brand || ""}</span></td>
+      <td class="score">${g.score}</td>
+      <td class="verdict v-${g.verdict}">${g.verdict}</td>
+      <td class="reason">${g.reason}</td>
+      <td>${g.wearable
+        ? `<button class="ghost" data-template="${g.template_id}" data-url="${g.image_url}"
+             data-category="${g.category}" data-name="${g.name}">Try on</button>`
+        : ""}</td>
+    </tr>`).join("");
+
+  document.querySelectorAll("[data-template],[data-url]").forEach(btn =>
+    btn.addEventListener("click", () => tryOn(btn)));
+}
+
+async function tryOn(btn) {
+  if (!bodyPhoto) {
+    const picker = document.createElement("input");
+    picker.type = "file";
+    picker.accept = "image/jpeg,image/png";
+    picker.onchange = () => { bodyPhoto = picker.files[0]; tryOn(btn); };
+    picker.click();
+    return;
+  }
+  const form = new FormData();
+  form.append("body", bodyPhoto);
+  // garment_url only — template_id is documented but rejected by the API.
+  const params = new URLSearchParams({
+    garment_url: btn.dataset.url || "",
+    category: btn.dataset.category || "upper_body",
+  });
+
+  btn.disabled = true;
+  btn.textContent = "Rendering…";
+  $("tryon").innerHTML = "";
+  try {
+    const res = await fetch(`/api/tryon?${params}`, { method: "POST", body: form });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail || "try-on failed");
+    $("tryon").innerHTML =
+      `<div class="grouplabel">${btn.dataset.name}</div><img src="${data.url}" alt="">`;
+  } catch (err) {
+    $("tryon").innerHTML = `<div class="err">${err.message}</div>`;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Try on";
+  }
+}
+
+function show(data) {
+  renderProfile(data.profile);
+  renderGarments(data.garments);
+  $("profile").style.display = "block";
+  $("source").textContent = data.source === "cache"
+    ? "showing your saved profile — no units spent"
+    : "freshly analysed — 1 unit spent";
+}
+
+async function loadCached() {
+  const res = await fetch("/api/profile");
+  if (!res.ok) return false;
+  show(await res.json());
+  return true;
+}
+
+async function analyse() {
+  $("error").textContent = "";
+  const file = $("selfie").files[0];
+
+  // No new photo means nothing to measure. Read the cache instead of paying
+  // to recompute an identical answer.
+  if (!file) return loadCached();
+
+  const form = new FormData();
+  form.append("selfie", file);
+
+  $("go").disabled = true;
+  $("go").textContent = "Analysing…";
+  try {
+    const res = await fetch("/api/analyse", { method: "POST", body: form });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail || "analysis failed");
+    show(data);
+  } catch (err) {
+    $("error").innerHTML = describe(err);
+  } finally {
+    $("go").disabled = false;
+    $("go").textContent = "Analyse my colouring";
+  }
+}
+
+// "Failed to fetch" is a TypeError from the network layer, not the API. It
+// almost always means the page was opened as a file:// URL, or uvicorn isn't
+// running — neither of which is obvious from the raw message.
+function describe(err) {
+  if (err instanceof TypeError || /fetch/i.test(err.message)) {
+    const viaFile = location.protocol === "file:";
+    return `Can't reach the backend.<br>` + (viaFile
+      ? `This page was opened as a file. Start the server and visit
+         <b>http://127.0.0.1:8000</b> instead:<br>
+         <code>UNDERTONE_DEMO=1 uvicorn server:app --reload</code>`
+      : `Is uvicorn still running? Start it with:<br>
+         <code>UNDERTONE_DEMO=1 uvicorn server:app --reload</code>`);
+  }
+  return err.message;
+}
+
+$("go").addEventListener("click", analyse);
+
+fetch("/api/health")
+  .then(r => r.json())
+  .then(h => {
+    $("status").textContent = h.demo_mode
+      ? "demo mode · cached profile · 0 units"
+      : `live · ${h.units_spent} of ${h.local_cap} local cap used`;
+    if (!h.demo_mode && h.cached_profile) loadCached();
+    if (h.demo_mode) {
+      // Uploads are ignored in demo mode. Saying so beats letting someone
+      // pick a photo and wonder why the result never changes.
+      $("selfie").disabled = true;
+      $("go").textContent = "Load cached profile";
+      document.querySelector(".card .sub").innerHTML =
+        "<b>Demo mode.</b> Serving the cached profile, ignoring uploads, " +
+        "spending no units. Restart without <code>UNDERTONE_DEMO=1</code> " +
+        "to analyse a new photo.";
+    }
+    if (h.demo_mode && h.cached_profile) analyse();
+  })
+  .catch(err => {
+    $("status").textContent = "offline";
+    $("error").innerHTML = describe(err);
+  });
+</script>
+</body>
+</html>

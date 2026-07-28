@@ -1,0 +1,31 @@
+.venv/
+__pycache__/
+*.pyc
+
+# Local unit ledger — state, not code
+.youcam_units.json
+
+# API keys
+.env
+
+# Uploaded selfies — do not commit faces
+photos/
+*.jpg
+*.jpeg
+*.png
+*.heic
+*.heif
+
+# Cropped model photos pulled from YouCam's CDN — not ours to redistribute
+debug_crops/
+
+# Saved API responses — noise, and they contain signed URLs
+youcam_runs/
+
+# ...except the screenshots the README needs
+!docs/*
+!static/*.png
+
+# Commit a profile so a fresh deploy always has something to show.
+# Free-tier disks are ephemeral; without this the first visitor sees nothing.
+!profile.json
