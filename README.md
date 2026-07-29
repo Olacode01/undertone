@@ -10,6 +10,11 @@ on your own photo.
 Built for the YouCam AI Hackathon on the **AI Skin Analysis + Apparel VTO**
 combined track.
 
+**Live demo: <https://undertone-55a9.onrender.com>**
+
+> Hosted on a free tier that sleeps when idle — the first request can take up to
+> 50 seconds to wake. Subsequent requests are immediate.
+
 ```
 selfie ──► Skin Tone Analysis ──► seasonal colour profile
                                         │
