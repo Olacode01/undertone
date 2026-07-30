@@ -279,6 +279,54 @@ performs on light skin is not deployable.
 
 ---
 
+## Describe your contribution
+
+Solo project. I designed, built, deployed and documented all of it.
+
+It's worth being precise about the boundary between what the YouCam API provides
+and what I wrote, because the value of this project sits entirely in the gap
+between them.
+
+**What YouCam provides:** hex colour measurements of a face, and a rendering
+engine that puts a garment on a photo.
+
+**What I built:** everything that turns the first into a reason to invoke the
+second.
+
+- **`colour.py`** — sRGB → linear RGB → XYZ → CIELAB conversion, and a seasonal
+  classifier built on four measured axes: undertone from the lightness-invariant
+  hue angle, depth from L*, skin-to-hair contrast from ΔL*, and chroma from
+  feature saturation. Includes the seasonal palettes and the plain-language
+  explanation generated from the measurements. Standard library only.
+- **Input validation and graceful degradation** — detecting when the API's hair
+  reading is actually the photo background, falling back to `eyebrow_color`,
+  and lowering stated confidence to match. This is the part I'd point at first.
+- **`match.py`** — CIEDE2000 implemented from the CIE specification, plus the
+  garment scoring model: fit distance to the nearest palette colour, clash
+  distance to the nearest avoid-tone, and a verdict with its ΔE attached.
+  Standard library only.
+- **`youcam_client.py`** — async driver for the API. Handles the presigned
+  upload the docs warn about, mandatory polling, and a persistent unit budget
+  that charges only successful tasks.
+- **`catalogue.py`** — builds a colour-matchable catalogue from YouCam's own
+  garment templates, including per-image skin subtraction so the model's face
+  isn't mistaken for the garment.
+- **`server.py` and the frontend** — FastAPI backend and a single-page interface
+  designed to show the reasoning rather than just the verdict, including a demo
+  mode that serves cached results so the UI could be built without spending
+  units.
+- **Deployment, README, and the API integration notes** documenting the
+  undocumented behaviour I hit.
+
+The two colour-science modules have no third-party dependencies and no YouCam
+coupling. They operate on hex values from any source, and are reusable for any
+colour-analysis work.
+
+The total API spend across the whole build was single-digit units, because
+everything except the measurements themselves runs on cached data.
+
+---
+
 ## Optional questions
 
 ### Was there a moment where the API surprised you — good or frustrating?
